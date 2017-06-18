@@ -33,44 +33,6 @@ truncateNgram <- function(ngram) {
     }
 }
 
-kneserNeyProbability <- function(w, h, freqTables, unigramProbTable, n=NULL) {
-    # What is the freq of the ngram (history, word)?
-    
-    # if n is unspecified, assume we are starting at the highest n; (e.g. 4 if 
-    # the highest-order ngram model is 4-grams).
-    if (is.null(n)) { n <- length(strsplit(h, '_')[[1]]) + 1 }
-    if (n > length(freqTables)) { stop("Input ngram too large") }
-    
-    # If we are down to unigrams, return Kneser-Ney unigram prob.
-    if (n == 1) {
-        if (h != "") { stop("Error! At unigram but history isn't blank!") }
-        p <- unigramProbTable[word==w]$p
-        if(length(p) == 0) {
-            stop(paste0("The word ", w, " is not in vocab"))
-        } else {
-            return(p)
-        }
-    }
-    
-    # Otherwise, we'll be recursively calculating the interpolation of all 
-    # orders of ngram models.
-    exactNgramFreq <- freqTables[[n]][(word==w) & (history==h)]$freq
-    if(length(exactNgramFreq) == 0) {
-        exactNgramFreq <- 0
-    }
-    discount <- getDiscount(freqTables[[n]])
-    sumSharedHistoryFreq <- sum(freqTables[[n]][history==h]$freq)
-    p1 <- max(exactNgramFreq - discount, 0)/sumSharedHistoryFreq
-    lambda <- (discount/sumSharedHistoryFreq) * nrow(freqTables[[n]][history==h])
-    smallerHistory <- truncateNgram(h)
-    
-    print(paste0("Calculating p(",w,"|",h,"); p1=",p1,", l=", lambda))
-    return(
-        p1 +
-        lambda * kneserNeyProbability(w, smallerHistory, freqTables, unigramProbTable, n-1)
-    )
-}
-
 knProb <- function(freqTable, lowerOrderProbTable) {
     # Given a frequency table of the current ngram order,
     # and a probability table of the lower order model,

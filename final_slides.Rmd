@@ -20,6 +20,8 @@ knitr::opts_chunk$set(echo = FALSE)
 - Offer reasonable suggestions even if input has never been seen before
 - Don't suggest inappropriate words
 
+Code: <https://github.com/jnmiller/datasci_capstone>
+
 ## 2. How It Works, Part I
 
 Using some real-word example text (the "training set"), we build up knowledge about how likely each word is to follow other groups of words.
